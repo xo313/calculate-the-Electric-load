@@ -2,40 +2,24 @@
 #include <cmath>
 using namespace std;
 
-class ElectricLoad {
-private:
+class power {
+public:
     float powerKW;
     float current;
     string phaseType;
     float voltage;
-
-public:
-    ElectricLoad(float p) {
-        powerKW = p;
-        current = 0;
-        phaseType = "";
-        voltage = 0;
-    }
-
     void calculate() {
-        float powerW = powerKW * 1000;
-
-        if (powerW > 5000) {
+        if (powerKW > 5) {
             phaseType = "3-Phase";
             voltage = 400;
-            current = powerW / (sqrt(3) * voltage * 0.8);
+            current = powerKW / (sqrt(3) * voltage * 0.8);
         } else {
             phaseType = "1-Phase";
             voltage = 220;
-            current = powerW / (voltage * 0.8);
+            current = powerKW / (voltage * 0.8);
         }
     }
 
-    void showResult() {
-        cout << "\nPhase type: " << phaseType << endl;
-        cout << "Calculated current: " << current << " A" << endl;
-        cout << "Suggested cable size: " << suggestCableSize(current) << endl;
-    }
 
     string suggestCableSize(float current) {
         if (current <= 10) return "1.5 mm";
@@ -44,17 +28,40 @@ public:
         else if (current <= 32) return "6 mm";
         else if (current <= 40) return "10 mm";
         else if (current <= 63) return "16 mm";
+        else return "Check engineering tables";
+    }
+
+};
+
+// كلاس لحساب حجم القاطع الكهربائي المناسب
+class ElectricLoad :public power {
+public:
+     string suggestBreakerSize(float current) {
+        if (current <= 10) return "10 A";
+        else if (current <= 16) return "16 A";
+        else if (current <= 20) return "20 A";
+        else if (current <= 25) return "25 A";
+        else if (current <= 32) return "32 A";
+        else if (current <= 40) return "40 A";
+        else if (current <= 50) return "50 A";
+        else if (current <= 63) return "63 A";
+        else return "Special breaker needed";
+    }
+	void showResult() {
+        cout << "\nPhase type: " << phaseType << endl;
+        cout << "Calculated current: " << current << " A" << endl;
+        cout << "Suggested cable size: " << suggestCableSize(current) << endl;
+        cout << "Suggested circuit breaker: " <<suggestBreakerSize(current)<< endl;
+
     }
 };
 
 int main() {
-    float power;
-    cout << "Enter electrical power (kW): ";
-    cin >> power;
+       ElectricLoad load;
+	   cout << "Enter electrical power (kW): ";
+	   cin >> load.powerKW;
 
-    ElectricLoad load(power);
+
     load.calculate();
     load.showResult();
-
-    return 0;
 }
